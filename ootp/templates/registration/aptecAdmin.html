@@ -1,0 +1,108 @@
+{% extends 'index.html' %}
+{%  block title  %}kantalamba SDA church  user dashboard {% endblock %}
+
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+    <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+        <p class="text-lg font-semibold mb-4">APTEC Udom Zone All Members</p>
+        
+        <!-- Table Container -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <!-- Table Header -->
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Username</th>
+                        <th class="px-4 py-2 text-left">First Name</th>
+                        <th class="px-4 py-2 text-left">Image</th>
+                        <th class="px-4 py-2 text-left">Email</th>
+                        <th class="px-4 py-2 text-left">Mobile Number</th>
+                        <th class="px-4 py-2 text-left">College</th>
+                        <th class="px-4 py-2 text-left">Year of Study</th>
+                        <th class="px-4 py-2 text-left">Home Church</th>
+                        <th class="px-4 py-2 text-left">Talent</th> <!-- New Talent Column -->
+                    </tr>
+                </thead>
+
+                <!-- Table Body -->
+                <tbody>
+                    <!-- Member 1 -->
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">1</td>
+                        <td class="px-4 py-2">johndoe</td>
+                        <td class="px-4 py-2">John Doe</td>
+                        <td class="px-4 py-2">
+                            <div class="w-10 h-10 rounded-full overflow-hidden">
+                                <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="John Doe" class="object-cover w-full h-full">
+                            </div>
+                        </td>
+                        <td class="px-4 py-2">johndoe@example.com</td>
+                        <td class="px-4 py-2">(123) 456-7890</td>
+                        <td class="px-4 py-2">Engineering</td>
+                        <td class="px-4 py-2">3rd Year</td>
+                        <td class="px-4 py-2">City Church</td>
+                        <td class="px-4 py-2">Public Speaking</td> <!-- Talent for Member 1 -->
+                    </tr>
+
+                    <!-- Member 2 -->
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">2</td>
+                        <td class="px-4 py-2">janesmith</td>
+                        <td class="px-4 py-2">Jane Smith</td>
+                        <td class="px-4 py-2">
+                            <div class="w-10 h-10 rounded-full overflow-hidden">
+                                <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="Jane Smith" class="object-cover w-full h-full">
+                            </div>
+                        </td>
+                        <td class="px-4 py-2">janesmith@example.com</td>
+                        <td class="px-4 py-2">(987) 654-3210</td>
+                        <td class="px-4 py-2">Science</td>
+                        <td class="px-4 py-2">2nd Year</td>
+                        <td class="px-4 py-2">Faith Church</td>
+                        <td class="px-4 py-2">Photography</td> <!-- Talent for Member 2 -->
+                    </tr>
+
+                    <!-- Member 3 -->
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">3</td>
+                        <td class="px-4 py-2">michaelbrown</td>
+                        <td class="px-4 py-2">Michael Brown</td>
+                        <td class="px-4 py-2">
+                            <div class="w-10 h-10 rounded-full overflow-hidden">
+                                <img src="https://randomuser.me/api/portraits/men/2.jpg" alt="Michael Brown" class="object-cover w-full h-full">
+                            </div>
+                        </td>
+                        <td class="px-4 py-2">michaelbrown@example.com</td>
+                        <td class="px-4 py-2">(555) 123-4567</td>
+                        <td class="px-4 py-2">Business</td>
+                        <td class="px-4 py-2">1st Year</td>
+                        <td class="px-4 py-2">Grace Church</td>
+                        <td class="px-4 py-2">Leadership</td> <!-- Talent for Member 3 -->
+                    </tr>
+
+                    <!-- Member 4 -->
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">4</td>
+                        <td class="px-4 py-2">lisajones</td>
+                        <td class="px-4 py-2">Lisa Jones</td>
+                        <td class="px-4 py-2">
+                            <div class="w-10 h-10 rounded-full overflow-hidden">
+                                <img src="https://randomuser.me/api/portraits/women/2.jpg" alt="Lisa Jones" class="object-cover w-full h-full">
+                            </div>
+                        </td>
+                        <td class="px-4 py-2">lisajones@example.com</td>
+                        <td class="px-4 py-2">(321) 765-4321</td>
+                        <td class="px-4 py-2">Mathematics</td>
+                        <td class="px-4 py-2">4th Year</td>
+                        <td class="px-4 py-2">Hope Church</td>
+                        <td class="px-4 py-2">Teaching</td> <!-- Talent for Member 4 -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

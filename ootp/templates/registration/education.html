@@ -1,0 +1,263 @@
+{% extends 'index.html' %}
+{%  block title  %}kantalamba SDA church  user dashboard {% endblock %}
+
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+    <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+        <p class="text-lg font-semibold mb-4">
+            
+        </p>
+
+        <!-- Leader Profile Section -->
+        <div class="mb-6 text-center">
+            <h2 class="text-2xl font-semibold mb-2" :class="{'text-white': dark, 'text-black': !dark}">Leader Profile</h2>
+            <div class="flex justify-center mb-4">
+                <img 
+                    id="profile-img-nav" id="image"
+                    alt="Profile Image"
+                    class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                >
+            </div>
+            <h5 class="text-blue-800">{{user.username}}</h5>
+            <h5 class="text-blue-800">{{user.email}}</h5>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const token = localStorage.getItem('access_token');
+                if (token) {
+                    fetch('/api/userprofile/', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const img = document.getElementById('profile-img-nav');
+                        if (data.image) {
+                            img.src = data.image;
+                        } else {
+                            img.src = '/path/to/default/profile/image.jpg';  // Fallback image
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching profile image:', error);
+                    });
+                } else {
+                    console.log('No token found');
+                }
+            });
+        </script>
+
+        <!-- Leader Table -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Leader Details</h2>
+            <div class="overflow-x-auto">
+              <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                  <tr>
+                    <th class="px-4 py-2 text-left">#</th>
+                    <th class="px-4 py-2 text-left">Username</th>
+                    <th class="px-4 py-2 text-left">Mobile Number</th>
+                    <th class="px-4 py-2 text-left">Image</th>
+                    <th class="px-4 py-2 text-left">Skills</th>
+                    <th class="px-4 py-2 text-left">College</th>
+                  </tr>
+                </thead>
+                <tbody id="leader-table-body">
+                  <!-- Data will be injected here via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <script>
+            fetch('/api/edu-all/members/')
+              .then(response => response.json())
+              .then(data => {
+                const tbody = document.getElementById('leader-table-body');
+                tbody.innerHTML = ''; // Clear previous rows
+          
+                data.forEach((leader, index) => {
+                  const row = document.createElement('tr');
+                  row.classList.add('border-b', 'dark:border-gray-600');
+          
+                  // Default to placeholder image if none
+                  const imageUrl = leader.image 
+                    ? `${leader.image}` 
+                    : 'https://via.placeholder.com/50';
+          
+                  row.innerHTML = `
+                    <td class="px-4 py-2">${index + 1}</td>
+                    <td class="px-4 py-2">${leader.username}</td>
+                    <td class="px-4 py-2">${leader.mobileNumber}</td>
+                    <td class="px-4 py-2">
+                      <img src="${imageUrl}" alt="Leader Image" class="w-8 h-8 rounded-full object-cover">
+                    </td>
+                    <td class="px-4 py-2">${leader.program}</td>
+                    <td class="px-4 py-2">${leader.collage}</td>
+                  `;
+                  tbody.appendChild(row);
+                });
+              })
+              .catch(error => {
+                console.error('Failed to fetch leader data:', error);
+              });
+          </script>
+          
+
+        <!-- Event Table -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Event Details</h2>
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Date</th>
+                        <th class="px-4 py-2 text-left">Event Done</th>
+                        <th class="px-4 py-2 text-left">Cost Used</th>
+                    </tr>
+                </thead>
+                <tbody id="events-table-body">
+                    <!-- Events will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <script>
+            // Fetch data from the API
+            fetch('/api/education/events')
+                .then(response => response.json())
+                .then(data => {
+                    const eventsTableBody = document.getElementById('events-table-body');
+                    // Loop through each event and create a table row
+                    data.forEach((event, index) => {
+                        const row = document.createElement('tr');
+                        row.classList.add('border-b', 'dark:border-gray-600');
+        
+                        row.innerHTML = `
+                            <td class="px-4 py-2">${index + 1}</td>
+                            <td class="px-4 py-2">${event.date_of_event}</td>
+                            <td class="px-4 py-2">${event.event_name}</td>
+                            <td class="px-4 py-2">${event.cost_used}</td>
+                        `;
+        
+                        // Append the row to the table body
+                        eventsTableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching events:', error));
+        </script>
+        
+
+
+
+
+        <!-- Fees Deficit Status Table -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Fees Deficit Status</h2>
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">First Name</th>
+                        <th class="px-4 py-2 text-left">College</th>
+                        <th class="px-4 py-2 text-left">Fees Deficit Status</th>
+                    </tr>
+                </thead>
+                <tbody id="deficit-table-body">
+                    <!-- Data will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <script>
+            fetch('/api/feesdeficit/members/education/')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('deficit-table-body');
+                    data.forEach((member, index) => {
+                        const row = document.createElement('tr');
+                        row.classList.add('border-b', 'dark:border-gray-600');
+        
+                        // Determine color based on feesStatus
+                        let statusColor = 'text-gray-700';
+                        switch (member.feesStatus) {
+                            case 'pending':
+                                statusColor = 'text-red-500';
+                                break;
+                            case 'on process':
+                                statusColor = 'text-yellow-500';
+                                break;
+                            case 'completed':
+                                statusColor = 'text-green-500';
+                                break;
+                            default:
+                                statusColor = 'text-gray-500';
+                        }
+        
+                        row.innerHTML = `
+                            <td class="px-4 py-2">${index + 1}</td>
+                            <td class="px-4 py-2">${member.firstName}</td>
+                            <td class="px-4 py-2">${member.collage}</td>
+                            <td class="px-4 py-2 font-semibold ${statusColor}">${member.feesStatus}</td>
+                        `;
+        
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        </script>
+        
+        <!-- ************************************assets*************************** -->
+        <div class="mt-4">
+            <h2 class="text-lg font-semibold mb-4">Assets Information</h2>
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Asset Name</th>
+                        <th class="px-4 py-2 text-left">Value / Cost</th>
+                    </tr>
+                </thead>
+                <tbody id="assets-table-body">
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <script>
+            fetch('/api/edu-assets/')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('assets-table-body');
+                    data.forEach((asset, index) => {
+                        const row = document.createElement('tr');
+                        row.classList.add('border-b', 'dark:border-gray-600');
+        
+                        row.innerHTML = `
+                            <td class="px-4 py-2">${index + 1}</td>
+                            <td class="px-4 py-2">${asset.AssetName}</td>
+                            <td class="px-4 py-2">$${asset.value}</td>
+                        `;
+        
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching assets:', error);
+                });
+        </script>
+        
+        
+    </div>
+</div>
+
+  
+
+{% endblock %}

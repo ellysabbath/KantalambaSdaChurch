@@ -1,0 +1,227 @@
+{% extends 'index.html' %}
+{% block title %}Kantalamba SDA Church - User Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+  <!-- Filters Section -->
+  <div class="flex flex-wrap justify-center gap-4 mb-4" :class="{'text-white': dark, 'text-black': !dark}">
+    <!-- Month Filter -->
+    <select id="month-filter" class="px-3 py-2 border rounded bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+      <option value="">All Months</option>
+      <script>
+        document.write([...Array(12).keys()].map(i =>
+          `<option value="${i + 1}">${new Date(0, i).toLocaleString('default', { month: 'long' })}</option>`
+        ).join(''));
+      </script>
+    </select>
+
+    <!-- Year Filter -->
+    <select id="year-filter" class="px-3 py-2 border rounded bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+      <option value="">All Years</option>
+      <script>
+        document.write([2023, 2024, 2025].map(year =>
+          `<option value="${year}">${year}</option>`
+        ).join(''));
+      </script>
+    </select>
+  </div>
+
+  <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">Contribution Data for the Year</h2>
+
+  <!-- Search Bar -->
+  <input
+    type="text"
+    id="search-input"
+    placeholder="🔍 Search by name or type..."
+    class="block mx-auto mb-4 px-4 py-2 border rounded w-full max-w-md bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
+  />
+
+  <!-- Data Table -->
+  <div class="overflow-x-auto rounded-lg shadow-md">
+    <table class="min-w-full border-collapse text-sm text-left border border-gray-300 dark:border-gray-600">
+      <thead class="bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-700 dark:to-blue-800 text-white">
+        <tr>
+          <th class="px-4 py-3 border-r border-blue-400 dark:border-blue-600">Username</th>
+          <th class="px-4 py-3 border-r border-blue-400 dark:border-blue-600">First Name</th>
+          <th class="px-4 py-3 border-r border-blue-400 dark:border-blue-600">Type of Contribution</th>
+          <th class="px-4 py-3 border-r border-blue-400 dark:border-blue-600">Month</th>
+          <th class="px-4 py-3">Amount Paid</th>
+        </tr>
+      </thead>
+      <tbody id="contribution-table-body" class="bg-white dark:bg-gray-800">
+        <tr><td colspan="5" class="text-center py-4">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="error-message" class="mt-4 text-center text-red-500 hidden">Unable to fetch data.</div>
+
+  <!-- Export Buttons -->
+  <div class="mt-6 flex gap-4 justify-center" :class="{'text-white': dark, 'text-black': !dark}">
+    <button onclick="exportToPDF()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">💾 Save as PDF</button>
+    <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded" :class="{'text-white': dark, 'text-black': !dark}">📄 Export to Excel</button>
+  </div>
+
+  <!-- Chart -->
+  <canvas id="contributionChart" class="w-full max-w-3xl mx-auto my-6"></canvas>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  let originalData = [];
+  let chartInstance;
+
+  // Fetch the token and data when the page loads
+  document.addEventListener('DOMContentLoaded', function () {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      fetchTreasurerRecords(token);  // Fetch data for the logged-in user
+    } else {
+      console.log('No token found. Please log in.');
+    }
+  });
+
+  // Fetch the user's specific records
+  function fetchTreasurerRecords(token) {
+    fetch('/api/treasurer-records/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to fetch data');
+      return res.json();
+    })
+    .then(data => {
+      originalData = data;
+      renderTable(data);  // Render the table with the fetched data
+      renderChart(data);  // Render the chart with the fetched data
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById('contribution-table-body').innerHTML =
+        `<tr><td colspan="5" class="text-center text-red-500 py-4">Error loading data</td></tr>`;
+    });
+  }
+
+  // Render the data into the table
+  function renderTable(data) {
+    const tableBody = document.getElementById('contribution-table-body');
+    tableBody.innerHTML = '';
+
+    if (!data.length) {
+      tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">No data available</td></tr>`;
+      return;
+    }
+
+    data.forEach((entry, index) => {
+      const formattedMonth = new Date(entry.month).toLocaleString('default', { month: 'long' });
+      const row = `
+        <tr class="${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'} hover:bg-blue-50 dark:hover:bg-gray-700 transition duration-200 ease-in-out">
+          <td class="px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-100">${entry.username}</td>
+          <td class="px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-100">${entry.firstname}</td>
+          <td class="px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-100">${entry.contributionType}</td>
+          <td class="px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-100">${formattedMonth}</td>
+          <td class="px-4 py-3 border border-gray-300 dark:border-gray-600 text-green-700 dark:text-green-400 font-semibold">${entry.AmountPaid}</td>
+        </tr>
+      `;
+      tableBody.innerHTML += row;
+    });
+  }
+
+  // Search functionality
+  document.getElementById('search-input').addEventListener('input', function () {
+    const keyword = this.value.toLowerCase();
+    const filtered = originalData.filter(item =>
+      item.username.toLowerCase().includes(keyword) ||
+      item.firstname.toLowerCase().includes(keyword) ||
+      item.contributionType.toLowerCase().includes(keyword)
+    );
+    renderTable(filtered);
+    renderChart(filtered);
+  });
+
+  // Filter by month and year
+  document.getElementById('month-filter').addEventListener('change', filterTable);
+  document.getElementById('year-filter').addEventListener('change', filterTable);
+
+  function filterTable() {
+    const month = document.getElementById('month-filter').value;
+    const year = document.getElementById('year-filter').value;
+
+    const filtered = originalData.filter(item => {
+      const date = new Date(item.month);
+      const matchesMonth = month ? (date.getMonth() + 1).toString() === month : true;
+      const matchesYear = year ? date.getFullYear().toString() === year : true;
+      return matchesMonth && matchesYear;
+    });
+
+    renderTable(filtered);
+    renderChart(filtered);
+  }
+
+  // Export to PDF
+  function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Grab the table and render it in the PDF
+    doc.autoTable({
+        html: '#contribution-table-body',  // Table body ID
+        head: [['Username', 'First Name', 'Contribution Type', 'Month', 'Amount Paid']],  // Column headers
+        startY: 30,  // Position of the table
+        theme: 'striped', // You can customize the table style here
+    });
+    
+    doc.save('contributions.pdf');  // Download the generated PDF
+  }
+
+  // Export to Excel
+  function exportToExcel() {
+    const table = document.querySelector('table');
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Contributions" });
+    XLSX.writeFile(wb, 'contributions.xlsx');
+  }
+
+  // Render the chart
+  function renderChart(data) {
+    const monthlyTotals = Array(12).fill(0);
+    data.forEach(item => {
+      const monthIndex = new Date(item.month).getMonth();
+      monthlyTotals[monthIndex] += parseFloat(item.AmountPaid);
+    });
+
+    const ctx = document.getElementById('contributionChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [...Array(12).keys()].map(i => new Date(0, i).toLocaleString('default', { month: 'long' })),
+        datasets: [{
+          label: 'Monthly Contributions',
+          data: monthlyTotals,
+          backgroundColor: '#6366f1',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}

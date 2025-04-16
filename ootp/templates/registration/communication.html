@@ -1,0 +1,125 @@
+{% extends 'index.html' %}
+{%  block title  %}kantalamba SDA church  user dashboard {% endblock %}
+
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+    <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+        <!-- Table Container -->
+        <div class="overflow-x-auto">
+            <h5>goals of communication ministry</h5>
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <!-- Table Header -->
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Name of Goal</th>
+                        <th class="px-4 py-2 text-left">Cost of Implementation</th>
+                    </tr>
+                </thead>
+
+                <!-- Table Body -->
+                <tbody id="communication-goals-body">
+
+                </tbody>
+
+            </table>
+        </div><br><br>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                fetch('/api/communication-goals/')
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.getElementById('communication-goals-body');
+                        tableBody.innerHTML = ''; // Clear any existing rows
+            
+                        if (Array.isArray(data)) {
+                            data.forEach((goal, index) => {
+                                const row = document.createElement('tr');
+                                row.classList.add('border-b', 'dark:border-gray-600');
+            
+                                row.innerHTML = `
+                                    <td class="px-4 py-2">${index + 1}</td>
+                                    <td class="px-4 py-2">${goal.goal_title}</td>
+                                    <td class="px-4 py-2">$${parseFloat(goal.cost).toLocaleString()}</td>
+                                `;
+                                tableBody.appendChild(row);
+                            });
+                        } else {
+                            console.error("API returned unexpected data format", data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching communication goals:', error);
+                    });
+            });
+            </script>
+            
+
+<!-- *********************************assets********************************** -->
+<div class="mt-4">
+    <h4>communication ministry assets</h4>
+    <!-- Table Container -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+            <!-- Table Header -->
+            <thead class="bg-gray-200 dark:bg-gray-700">
+                <tr>
+                    <th class="px-4 py-2 text-left">#</th>
+                    <th class="px-4 py-2 text-left">Name of Asset</th>
+                    <th class="px-4 py-2 text-left">Number of Assets</th>
+                    <th class="px-4 py-2 text-left">Cost per Asset</th>
+                </tr>
+            </thead>
+
+            <!-- Table Body -->
+            <tbody id="communication-assets-body">
+                <!-- Dynamic rows will go here -->
+            </tbody>
+         </table>
+    </div>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/api/communication-assets/')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('communication-assets-body');
+                tableBody.innerHTML = ''; // Clear any existing dummy rows
+    
+                if (Array.isArray(data)) {
+                    data.forEach((asset, index) => {
+                        const row = document.createElement('tr');
+                        row.classList.add('border-b', 'dark:border-gray-600');
+    
+                        row.innerHTML = `
+                            <td class="px-4 py-2">${index + 1}</td>
+                            <td class="px-4 py-2">${asset.asset_name} (${asset.asset_type})</td>
+                            <td class="px-4 py-2">${asset.quantity}</td>
+                            <td class="px-4 py-2">$${parseFloat(asset.value).toLocaleString()}</td>
+                        `;
+    
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    console.error('Unexpected data format from API:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching communication assets:', error);
+            });
+    });
+    </script>
+    
+
+        <div class="mt-4">
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

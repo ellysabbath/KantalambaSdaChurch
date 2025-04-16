@@ -1,0 +1,178 @@
+{% extends 'index.html' %}
+{%  block title  %}kantalamba SDA church  user dashboard {% endblock %}
+
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+    <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+        <!-- Leader Profile -->
+        <div class="mb-6 text-center">
+            <h2 class="text-2xl font-semibold mb-2" :class="{'text-white': dark, 'text-black': !dark}">Leader Profile</h2>
+            <div class="flex justify-center mb-4">
+                <img 
+                    id="profile-img-nav" id="image"
+                    alt="Profile Image"
+                    class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                >
+            </div>
+            <h5 class="text-blue-800">{{user.username}}</h5>
+            <h5 class="text-blue-800">{{user.email}}</h5>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const token = localStorage.getItem('access_token');
+                if (token) {
+                    fetch('/api/userprofile/', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const img = document.getElementById('profile-img-nav');
+                        if (data.image) {
+                            img.src = data.image;
+                        } else {
+                            img.src = '/path/to/default/profile/image.jpg';  // Fallback image
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching profile image:', error);
+                    });
+                } else {
+                    console.log('No token found');
+                }
+            });
+        </script>
+
+        <!-- Event Table -->
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-4">Event Details</h3>
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Date</th>
+                        <th class="px-4 py-2 text-left">Event</th>
+                        <th class="px-4 py-2 text-left">Image</th>
+                        <th class="px-4 py-2 text-left">Cost Used</th>
+                        <th class="px-4 py-2 text-left">Output Raised</th>
+                    </tr>
+                </thead>
+                <tbody id="event-details-table-body">
+                    <!-- Data will be injected here dynamically -->
+                </tbody>
+            </table>
+        </div>
+        
+        <script>
+            // Fetching data from the API
+            document.addEventListener('DOMContentLoaded', function () {
+                fetch('/api/medical-missionary/details-events/')
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.getElementById('event-details-table-body');
+                        tableBody.innerHTML = '';  // Clear any existing rows
+        
+                        // Check if the data is an array and loop through it
+                        if (Array.isArray(data)) {
+                            data.forEach((event, index) => {
+                                const row = document.createElement('tr');
+                                row.classList.add('border-b', 'dark:border-gray-600');
+                                row.innerHTML = `
+                                    <td class="px-4 py-2">${index + 1}</td>
+                                    <td class="px-4 py-2">${event.event_date}</td>
+                                    <td class="px-4 py-2">${event.event_name}</td>
+<td class="px-4 py-2">
+    <img src="${event.event_Image || 'https://via.placeholder.com/150'}" alt="${event.event_name}" class="w-12 h-12 rounded-full object-cover">
+</td>
+
+                                    <td class="px-4 py-2">$${parseFloat(event.cost).toLocaleString()}</td>
+                                    <td class="px-4 py-2">$${parseFloat(event.output_raised).toLocaleString()}</td>
+                                `;
+                                tableBody.appendChild(row);
+                            });
+                        } else {
+                            console.error('Unexpected data format', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching event data:', error);
+                    });
+            });
+        </script>
+        
+        
+        <!-- Health Status Table -->
+        <div>
+            <h3 class="text-lg font-semibold mb-4">Health Status</h3>
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Username</th>
+                        
+                        <th class="px-4 py-2 text-left">Image</th>
+                        <th class="px-4 py-2 text-left">Health Status</th>
+                        <th class="px-4 py-2 text-left">Collage</th>
+                    </tr>
+                </thead>
+                <tbody id="health-status-body">
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <script>
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/api/members/health-status/fetch/')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('health-status-body');
+            tableBody.innerHTML = ''; // Clear old rows
+
+            data.forEach((member, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b', 'dark:border-gray-600');
+
+                const imageUrl = member.event_image 
+                    ? member.event_image 
+                    : 'https://via.placeholder.com/40';
+
+                const collage = member.member_collage.toUpperCase();
+
+                row.innerHTML = `
+                    <td class="px-4 py-2">${index + 1}</td>
+                    <td class="px-4 py-2">${member.username}</td>
+                    
+                    <td class="px-4 py-2">
+                        <img src="${imageUrl}" alt="${member.member_name}" class="w-8 h-8 rounded-full object-cover">
+                    </td>
+                    <td class="px-4 py-2">${stripHtml(member.health_condition)}</td>
+                    <td class="px-4 py-2">${collage}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching health status:', error);
+        });
+
+    function stripHtml(html) {
+        const div = document.createElement("div");
+        div.innerHTML = html;
+        return div.textContent || div.innerText || "";
+    }
+});
+
+            </script>
+            
+        
+    </div>
+</div>
+
+  
+
+{% endblock %}

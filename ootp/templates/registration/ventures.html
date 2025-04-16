@@ -1,0 +1,179 @@
+{% extends 'index.html' %}
+{% block title %}kantalamba SDA church user dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+    <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+        <p class="text-lg font-semibold mb-4">
+            main plan
+        </p>
+
+        <!-- Plans Table Container -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Plan Name</th>
+                        <th class="px-4 py-2 text-left">description</th>
+                        <th class="px-4 py-2 text-left">Plan type</th>
+                        <th class="px-4 py-2 text-left">Cost</th>
+                    </tr>
+                </thead>
+                <tbody id="main-plans-table-body">
+                    <!-- Data will be injected here dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Script for Main Plans -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                function fetchVenturesData() {
+                    fetch('/api/ventures-main-plans/')
+                        .then(response => response.json())
+                        .then(data => {
+                            const venturesTableBody = document.getElementById('main-plans-table-body');
+                            if (Array.isArray(data)) {
+                                data.forEach((venture, index) => {
+                                    const row = document.createElement('tr');
+                                    row.classList.add('border-b', 'dark:border-gray-600');
+                                    row.innerHTML = `
+                                        <td class="px-4 py-2">${index + 1}</td>
+                                        <td class="px-4 py-2">${venture.name}</td>
+                                        <td class="px-4 py-2">${venture.description}</td>
+                                        <td class="px-4 py-2">${venture.plan_type}</td>
+                                        <td class="px-4 py-2">$${venture.cost}</td>
+                                    `;
+                                    venturesTableBody.appendChild(row);
+                                });
+                            } else {
+                                console.error('API returned unexpected data format', data);
+                            }
+                        })
+                        .catch(error => console.error('Error fetching ventures data:', error));
+                }
+                fetchVenturesData();
+            });
+        </script><br><br>
+
+        <!-- Monthly Account Table -->
+        <div class="mt-4">
+            <h5 class="">monthly account</h5>
+            <div class="overflow-x-auto">
+                <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                    <thead class="bg-gray-200 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-4 py-2 text-left">#</th>
+                            <th class="px-4 py-2 text-left">Venture Name</th>
+                            <th class="px-4 py-2 text-left">Average Gains/Month</th>
+                            <th class="px-4 py-2 text-left">Average Cost/Month</th>
+                            <th class="px-4 py-2 text-left">Average Monthly Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthly-account-table-body">
+                        <!-- Dynamic rows will go here -->
+                    </tbody>
+                </table>
+            </div>
+        </div><br>
+
+        <!-- Script for Monthly Account -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                fetch('/api/ventures-monthly-account/')
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.getElementById('monthly-account-table-body');
+                        tableBody.innerHTML = '';
+                        data.forEach((item, index) => {
+                            const row = document.createElement('tr');
+                            row.classList.add('border-b', 'dark:border-gray-600');
+                            row.innerHTML = `
+                                <td class="px-4 py-2">${index + 1}</td>
+                                <td class="px-4 py-2">${item.name || 'N/A'}</td>
+                                <td class="px-4 py-2">$${parseFloat(item.monthlyGain).toLocaleString()}</td>
+                                <td class="px-4 py-2">$${parseFloat(item.monthlyCost).toLocaleString()}</td>
+                                <td class="px-4 py-2">$${parseFloat(item.monthlyProfit).toLocaleString()}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    });
+            });
+        </script>
+
+        <!-- Summary Section -->
+        <div class="mt-6">
+            <h2 class="text-lg font-semibold mb-4">Summary</h2>
+            <div class="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Monthly Cost:</p>
+                <p id="total-monthly-cost" class="text-lg font-semibold text-gray-700 dark:text-gray-200">$0</p>
+        
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Average Revenues:</p>
+                <p id="total-monthly-revenue" class="text-lg font-semibold text-gray-700 dark:text-gray-200">$0</p>
+        
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Monthly Profit:</p>
+                <p id="total-monthly-profit" class="text-lg font-semibold text-green-600 dark:text-green-400">$0</p>
+            </div>
+        </div>
+        
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+  fetch('/api/ventures-monthly-account/')
+    .then(response => response.json())
+    .then(data => {
+      const tableBody = document.getElementById('monthly-account-table-body');
+      tableBody.innerHTML = ''; // Clear existing table rows if any
+
+      let totalMonthlyGain = 0;
+      let totalMonthlyCost = 0;
+      let totalMonthlyProfit = 0;
+
+      // Loop through each item and create a table row
+      data.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.classList.add('border-b', 'dark:border-gray-600');
+
+        // Calculate monthly profit (monthlyGain - monthlyCost)
+        const monthlyGain = parseFloat(item.monthlyGain);
+        const monthlyCost = parseFloat(item.monthlyCost);
+        const monthlyProfit = monthlyGain - monthlyCost;
+
+        // Update totals
+        totalMonthlyGain += monthlyGain;
+        totalMonthlyCost += monthlyCost;
+        totalMonthlyProfit += monthlyProfit;
+
+        // Add row to the table
+        row.innerHTML = `
+          <td class="px-4 py-2">${index + 1}</td>
+          <td class="px-4 py-2">${item.name || 'N/A'}</td>
+          <td class="px-4 py-2">$${monthlyGain.toLocaleString()}</td>
+          <td class="px-4 py-2">$${monthlyCost.toLocaleString()}</td>
+          <td class="px-4 py-2">$${monthlyProfit.toLocaleString()}</td>
+        `;
+
+        // Append the row to the table body
+        tableBody.appendChild(row);
+      });
+
+      // Display the total values in the summary section
+      document.getElementById('total-monthly-cost').textContent = `$${totalMonthlyCost.toLocaleString()}`;
+      document.getElementById('total-monthly-revenue').textContent = `$${totalMonthlyGain.toLocaleString()}`;
+      document.getElementById('total-monthly-profit').textContent = `$${totalMonthlyProfit.toLocaleString()}`;
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+});
+
+        </script>
+
+                
+    </div>
+</div>
+{% endblock %}

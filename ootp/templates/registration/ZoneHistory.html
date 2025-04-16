@@ -1,0 +1,173 @@
+{% extends 'index.html' %}
+{% block title %}Kantalamba SDA Church User Dashboard{% endblock %}
+
+{% block content %}
+<div id="users-container" :class="{'text-white': dark, 'text-black': !dark}"  class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+  <div class="transition-colors duration-300">
+    <div class="relative max-w-full mx-auto">
+      <div class="overflow-hidden">
+        <div class="flex animate-marquee" id="user-cards">
+          <!-- User cards will be injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<br><br><br>
+
+<div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Fetch user data and populate user cards
+      function fetchUserData() {
+        fetch('/api/zone-history/')
+          .then(response => response.json())
+          .then(data => {
+            const userCardsContainer = document.getElementById('user-cards');
+            data.forEach(user => {
+              const userCard = createUserCard(user);
+              userCardsContainer.appendChild(userCard);
+            });
+          })
+          .catch(error => console.error('Error fetching user data:', error));
+      }
+
+      // Create a user card element
+      function createUserCard(user) {
+        const userCard = document.createElement('div');
+        userCard.classList.add('flex', 'flex-col', 'items-center', 'px-4', 'text-black');
+        
+        // Create image and text content
+        const imageWrapper = document.createElement('div');
+        imageWrapper.classList.add('image-wrapper');
+        const img = document.createElement('img');
+        img.src = user.image || 'https://randomuser.me/api/portraits/men/1.jpg';
+        img.alt = `${user.firstname} ${user.position}`;
+        img.classList.add('user-img');
+        imageWrapper.appendChild(img);
+        
+        const userName = document.createElement('p');
+        userName.classList.add('text-sm', 'mt-2', 'text-blue-500');
+        userName.textContent = `${user.firstname} - ${user.position}`;
+        
+        userCard.appendChild(imageWrapper);
+        userCard.appendChild(userName);
+        
+        return userCard;
+      }
+
+      // Call fetchUserData when the page loads
+      fetchUserData();
+    });
+  </script>
+</div>
+
+<!-- Content Section -->
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+  <div class="transition-colors duration-300">
+    <p class="text-lg font-semibold mb-4" :class="{'text-white': dark, 'text-black': !dark}" >UDOM Zone History</p>
+
+    <!-- Table Container -->
+    <div class="overflow-x-auto bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+      <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300 border-collapse">
+        <thead class="bg-gray-200 dark:bg-gray-700">
+          <tr>
+            <th class="px-4 py-2 text-left border-b">#</th>
+            <th class="px-4 py-2 text-left border-b">First Name</th>
+            <th class="px-4 py-2 text-left border-b">Username</th>
+            <th class="px-4 py-2 text-left border-b">Image</th>
+            <th class="px-4 py-2 text-left border-b">Position</th>
+            <th class="px-4 py-2 text-left border-b">Year of Graduate</th>
+            <th class="px-4 py-2 text-left border-b">Certificate Status</th>
+          </tr>
+        </thead>
+        <tbody id="user-table-body">
+          <!-- User rows will be injected here dynamically -->
+        </tbody>
+      </table>
+    </div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Function to fetch user data and populate the table
+        function fetchUserData() {
+          fetch('/api/zone-history/')
+            .then(response => response.json())
+            .then(data => {
+              const userTableBody = document.getElementById('user-table-body');
+              data.forEach((user, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b', 'dark:border-gray-600');
+                row.innerHTML = `
+                  <td class="px-4 py-2">${index + 1}</td>
+                  <td class="px-4 py-2">${user.firstname}</td>
+                  <td class="px-4 py-2">@${user.username}</td>
+                  <td class="px-4 py-2">
+                    <img src="${user.image || 'https://randomuser.me/api/portraits/men/1.jpg'}" alt="${user.firstname}" class="w-12 h-12 rounded-full object-cover">
+                  </td>
+                  <td class="px-4 py-2">${user.position}</td>
+                  <td class="px-4 py-2">${user.yearOfStudy}</td>
+                  <td class="px-4 py-2">${user.certificateStatus}</td>
+                `;
+                userTableBody.appendChild(row);
+              });
+            })
+            .catch(error => console.error('Error fetching user data:', error));
+        }
+
+        // Call fetchUserData when the page loads
+        fetchUserData();
+      });
+    </script>
+    
+    <!-- Event Table -->
+    <div class="mt-4">
+      <div class="overflow-x-auto bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+        <h5 class="text-lg font-bold mb-2  text-gray-700 dark:text-gray-200">TABLE OF EVENTS DONE</h5>
+    
+        <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300 border-collapse">
+          <thead class="bg-gray-200 dark:bg-gray-700">
+            <tr>
+              <th class="px-4 py-2 text-left border-b">#</th>
+              <th class="px-4 py-2 text-left border-b">Date</th>
+              <th class="px-4 py-2 text-left border-b">Images</th>
+              <th class="px-4 py-2 text-left border-b">Event Done</th>
+              <th class="px-4 py-2 text-left border-b">Cost Used</th>
+            </tr>
+          </thead>
+          <tbody id="event-table-body">
+            <!-- Event rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Script to load event data -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        fetch('/api/events/')
+          .then(response => response.json())
+          .then(data => {
+            const eventTableBody = document.getElementById('event-table-body');
+            data.forEach((event, index) => {
+              const row = document.createElement('tr');
+              row.classList.add('border-b', 'dark:border-gray-600');
+              row.innerHTML = `
+                <td class="px-4 py-2">${index + 1}</td>
+                <td class="px-4 py-2">${event.date}</td>
+                <td class="px-4 py-2">
+                  <img src="${event.images || 'https://via.placeholder.com/150'}" alt="Event Image" class="w-12 h-12 rounded-full object-cover">
+                </td>
+                <td class="px-4 py-2">${event.nameOfAnEvent}</td>
+                <td class="px-4 py-2">${event.costUsed}</td>
+              `;
+              eventTableBody.appendChild(row);
+            });
+          })
+          .catch(error => console.error('Error fetching event data:', error));
+      });
+    </script>
+  </div>
+</div>
+{% endblock %}

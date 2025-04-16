@@ -1,0 +1,32 @@
+<!-- update_profile_image.html -->
+{% extends 'index.html' %}
+
+{% block title %}
+    kantalamba SDA church - Update Profile Image
+{% endblock %}
+
+{% block content %}
+    <div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+        <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+            <h2 class="text-xl font-semibold mb-4">Update Your Profile Image</h2>
+            <p>Update your profile image below:</p>
+
+            <!-- If the user already has a profile image, show it -->
+            {% if profile_image %}
+                <div class="mb-4">
+                    <p>Your current profile image:</p>
+                    <img src="{{ profile_image.image.url }}" alt="Current Profile Image" class="w-32 h-32 rounded-full object-cover">
+                </div>
+            {% else %}
+                <p>You don't have a profile image yet.</p>
+            {% endif %}
+
+            <!-- Profile Image Form -->
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4">Update Image</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

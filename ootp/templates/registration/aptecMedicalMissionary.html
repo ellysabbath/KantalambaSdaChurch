@@ -1,0 +1,106 @@
+{% extends 'index.html' %}
+{%  block title  %}kantalamba SDA church  user dashboard {% endblock %}
+
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+    <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+        <!-- Leader Profile -->
+        <div class="mb-6 text-center">
+            <h2 class="text-2xl font-semibold mb-2">Leader Profile</h2>
+            <div class="flex justify-center items-center space-x-4">
+                <img src="leader_image.jpg" alt="Leader Image" class="w-16 h-16 rounded-full border-2 border-gray-300 dark:border-gray-700">
+                <div class="text-left">
+                    <p class="font-medium text-lg">John Doe</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Leader, Medical Missionary</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">APTEC UDOM ZONE</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Table -->
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-4">Event Details</h3>
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Date</th>
+                        <th class="px-4 py-2 text-left">Event</th>
+                        <th class="px-4 py-2 text-left">Cost Used</th>
+                        <th class="px-4 py-2 text-left">Output Raised</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">1</td>
+                        <td class="px-4 py-2">2025-04-01</td>
+                        <td class="px-4 py-2">Health Seminar</td>
+                        <td class="px-4 py-2">$500</td>
+                        <td class="px-4 py-2">$2000</td>
+                    </tr>
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">2</td>
+                        <td class="px-4 py-2">2025-04-15</td>
+                        <td class="px-4 py-2">Medical Outreach</td>
+                        <td class="px-4 py-2">$800</td>
+                        <td class="px-4 py-2">$3000</td>
+                    </tr>
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">3</td>
+                        <td class="px-4 py-2">2025-04-20</td>
+                        <td class="px-4 py-2">Health Awareness Campaign</td>
+                        <td class="px-4 py-2">$600</td>
+                        <td class="px-4 py-2">$2500</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Health Status Table -->
+        <div>
+            <h3 class="text-lg font-semibold mb-4">Health Status</h3>
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Username</th>
+                        <th class="px-4 py-2 text-left">Mobile Number</th>
+                        <th class="px-4 py-2 text-left">Image</th>
+                        <th class="px-4 py-2 text-left">Health Status</th>
+                        <th class="px-4 py-2 text-left">Collage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">1</td>
+                        <td class="px-4 py-2">johndoe01</td>
+                        <td class="px-4 py-2">+255 123 456 789</td>
+                        <td class="px-4 py-2"><img src="user_image1.jpg" alt="User Image" class="w-8 h-8 rounded-full"></td>
+                        <td class="px-4 py-2">Healthy</td>
+                        <td class="px-4 py-2">UDOM</td>
+                    </tr>
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">2</td>
+                        <td class="px-4 py-2">janedoe02</td>
+                        <td class="px-4 py-2">+255 987 654 321</td>
+                        <td class="px-4 py-2"><img src="user_image2.jpg" alt="User Image" class="w-8 h-8 rounded-full"></td>
+                        <td class="px-4 py-2">Recovering</td>
+                        <td class="px-4 py-2">UDOM</td>
+                    </tr>
+                    <tr class="border-b dark:border-gray-600">
+                        <td class="px-4 py-2">3</td>
+                        <td class="px-4 py-2">alexdoe03</td>
+                        <td class="px-4 py-2">+255 555 123 456</td>
+                        <td class="px-4 py-2"><img src="user_image3.jpg" alt="User Image" class="w-8 h-8 rounded-full"></td>
+                        <td class="px-4 py-2">In Treatment</td>
+                        <td class="px-4 py-2">UDOM</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+  
+
+{% endblock %}

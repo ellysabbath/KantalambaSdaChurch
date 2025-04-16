@@ -1,0 +1,283 @@
+{% extends 'index.html' %}
+
+{% block title %}Mhazini | Kantalamba SDA Church User Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300" :class="{'text-white': dark, 'text-black': !dark}">
+
+  <!-- ========================== Payment Records ========================== -->
+  <div class="max-w-full max-h-[400px] overflow-x-auto overflow-y-auto p-4">
+    <h1 class="text-lg font-semibold mb-4" :class="{'text-white': dark, 'text-black': !dark}">Payment Records</h1>
+
+    <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300" id="paymentTable">
+      <thead class="bg-gray-200 dark:bg-gray-700">
+        <tr>
+          <th class="px-4 py-2 text-left">#</th>
+          <th class="px-4 py-2 text-left">Username</th>
+          <th class="px-4 py-2 text-left">First Name</th>
+          <th class="px-4 py-2 text-left">Date</th>
+          <th class="px-4 py-2 text-left">College</th>
+          <th class="px-4 py-2 text-left">Amount Paid</th>
+          <th class="px-4 py-2 text-left">Payment Type</th>
+        </tr>
+      </thead>
+      <tbody id="paymentTableBody"></tbody>
+    </table>
+
+    <div class="mt-4 flex justify-end">
+      <p class="text-lg font-semibold text-gray-700 dark:text-gray-200" id="totalAmount">Total: $0</p>
+    </div>
+  </div>
+
+  <!-- ========================== Goals Table ========================== -->
+  <div class="mt-6 max-w-400 max-h-[400px] p-4" :class="{'text-white': dark, 'text-black': !dark}">
+    <h1 class="text-lg font-semibold mb-4" :class="{'text-white': dark, 'text-black': !dark}">Main Goals</h1>
+
+    <div class="overflow-x-auto overflow-y-auto max-h-[300px]">
+      <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300" id="goalsTable">
+        <thead class="bg-gray-200 dark:bg-gray-700">
+          <tr>
+            <th class="px-4 py-2 text-left">#</th>
+            <th class="px-4 py-2 text-left">Order/Goal</th>
+            <th class="px-4 py-2 text-left">Status</th>
+          </tr>
+        </thead>
+        <tbody id="goalsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================== Report Summary ========================== -->
+  <div class="mt-6">
+    <h2 class="text-lg font-semibold mb-4" :class="{'text-white': dark, 'text-black': !dark}">Report Summary</h2>
+
+    <div class="overflow-x-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+      <table id="reportTable" class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+        <thead class="bg-gray-200 dark:bg-gray-700">
+          <tr>
+            <th class="px-4 py-2 text-left">#</th>
+            <th class="px-4 py-2 text-left">Amount Used</th>
+            <th class="px-4 py-2 text-left">Amount Gained</th>
+            <th class="px-4 py-2 text-left">Reason of Use</th>
+            <th class="px-4 py-2 text-left">Net Amount</th>
+          </tr>
+        </thead>
+        <tbody id="reportTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="mt-4 p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-sm">
+      <h3 class="text-lg font-semibold mb-2" :class="{'text-white': dark, 'text-black': !dark}">Amount Present</h3>
+      <p id="totalNetAmount" class="text-lg font-semibold text-green-600 dark:text-green-400">$0</p>
+    </div>
+  </div>
+
+  <!-- ========================== Export Buttons ========================== -->
+  <div class="mt-4 flex justify-end">
+    <button id="exportCSV" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">Export to CSV</button>
+    <button id="exportExcel" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Export to Excel</button>
+    <button id="exportPDF" class="bg-red-500 text-white px-4 py-2 rounded mr-2">Export to PDF</button>
+    <button id="exportSVG" class="bg-purple-500 text-white px-4 py-2 rounded mr-2">Export to SVG</button>
+    <button id="copyData" class="bg-yellow-500 text-white px-4 py-2 rounded">Copy to Clipboard</button>
+  </div>
+
+</div>
+
+<!-- ========================== Scripts ========================== -->
+<script>
+  // Fetch and display payment records
+  fetch('/api/treasurers/')
+    .then(res => res.json())
+    .then(data => {
+      let total = 0;
+      const table = document.getElementById('paymentTableBody');
+      data.forEach((record, i) => {
+        const row = document.createElement('tr');
+        row.classList.add('border-b', 'dark:border-gray-600');
+        row.innerHTML = `
+          <td class="px-4 py-2">${i + 1}</td>
+          <td class="px-4 py-2">${record.username}</td>
+          <td class="px-4 py-2">${record.firstname}</td>
+          <td class="px-4 py-2">${record.month}</td>
+          <td class="px-4 py-2">${record.collage}</td>
+          <td class="px-4 py-2">${record.AmountPaid}</td>
+          <td class="px-4 py-2">${record.contributionType}</td>
+        `;
+        table.appendChild(row);
+        total += parseFloat(record.AmountPaid);
+      });
+      document.getElementById('totalAmount').textContent = `Total: $${total.toFixed(2)}`;
+    });
+
+  // Fetch and display goals
+  fetch('/api/treasurer-goals/')
+    .then(res => res.json())
+    .then(data => {
+      const goalsTableBody = document.getElementById('goalsTableBody');
+      data.forEach((goal, i) => {
+        let statusClass = 'text-gray-500', status = 'Unknown';
+        switch (goal.status.toLowerCase()) {
+          case 'pending': statusClass = 'text-red-500'; status = 'Pending'; break;
+          case 'on process': statusClass = 'text-yellow-500'; status = 'In Progress'; break;
+          case 'completed': statusClass = 'text-green-500'; status = 'Completed'; break;
+        }
+        const row = document.createElement('tr');
+        row.classList.add('border-b', 'dark:border-gray-600');
+        row.innerHTML = `
+          <td class="px-4 py-2">${i + 1}</td>
+          <td class="px-4 py-2">${goal.title}</td>
+          <td class="px-4 py-2 ${statusClass}">${status}</td>
+        `;
+        goalsTableBody.appendChild(row);
+      });
+    });
+
+  // Fetch and display report summary
+  let collectedRecords = [], usedRecords = [];
+
+  fetch('/api/treasurer-amount-collected/')
+    .then(res => res.json())
+    .then(data => {
+      collectedRecords = data.map(d => ({
+        date: d.dateOfCollection,
+        amount: parseFloat(d.amountCollected),
+        source: d.source
+      }));
+      buildReportTable();
+    });
+
+  fetch('/api/treasurer-amount-used/')
+    .then(res => res.json())
+    .then(data => {
+      usedRecords = data.map(d => ({
+        date: d.dateOfUse,
+        amount: parseFloat(d.amountUsed),
+        reason: d.aimOfUse
+      }));
+      buildReportTable();
+    });
+
+  function buildReportTable() {
+    if (!collectedRecords.length || !usedRecords.length) return;
+
+    const tbody = document.querySelector('#reportTableBody');
+    tbody.innerHTML = '';
+
+    let totalCollected = 0, totalUsed = 0, totalNet = 0;
+    const maxLength = Math.max(collectedRecords.length, usedRecords.length);
+
+    for (let i = 0; i < maxLength; i++) {
+      const used = usedRecords[i] || { amount: 0, reason: 'N/A' };
+      const collected = collectedRecords[i] || { amount: 0 };
+      const net = collected.amount - used.amount;
+
+      totalCollected += collected.amount;
+      totalUsed += used.amount;
+      totalNet += net;
+
+      const row = document.createElement('tr');
+      row.classList.add('border-b', 'dark:border-gray-600');
+      row.innerHTML = `
+        <td class="px-4 py-2">${i + 1}</td>
+        <td class="px-4 py-2">${formatCurrency(used.amount)}</td>
+        <td class="px-4 py-2">${formatCurrency(collected.amount)}</td>
+        <td class="px-4 py-2">${used.reason}</td>
+        <td class="px-4 py-2">${formatCurrency(net)}</td>
+      `;
+      tbody.appendChild(row);
+    }
+
+    // Summary Row
+    const summaryRow = document.createElement('tr');
+    const netClass = totalNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+    summaryRow.classList.add('bg-gray-100', 'dark:bg-gray-900', 'font-semibold');
+    summaryRow.innerHTML = `
+      <td class="px-4 py-2">Total</td>
+      <td class="px-4 py-2">${formatCurrency(totalUsed)}</td>
+      <td class="px-4 py-2">${formatCurrency(totalCollected)}</td>
+      <td class="px-4 py-2 text-gray-400">—</td>
+      <td class="px-4 py-2 ${netClass}">${formatCurrency(totalNet)}</td>
+    `;
+    tbody.appendChild(summaryRow);
+
+    // Update the summary amount section
+    document.getElementById('totalNetAmount').textContent = formatCurrency(totalNet);
+  }
+
+  // Helper function to format currency
+  function formatCurrency(amount) {
+    return `$${amount.toFixed(2)}`;
+  }
+
+  // ========================== Export Functionality ==========================
+  
+  // Export to CSV
+  document.getElementById('exportCSV').addEventListener('click', function () {
+    const tables = [document.getElementById('paymentTable'), document.getElementById('goalsTable'), document.getElementById('reportTable')];
+    let csvContent = '';
+    tables.forEach(table => {
+      const csv = Papa.unparse(table);
+      csvContent += csv + '\n\n';
+    });
+    const link = document.createElement('a');
+    link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+    link.download = 'dashboard_data.csv';
+    link.click();
+  });
+
+  // Export to Excel
+  document.getElementById('exportExcel').addEventListener('click', function () {
+    const wb = XLSX.utils.book_new();
+    const tables = [document.getElementById('paymentTable'), document.getElementById('goalsTable'), document.getElementById('reportTable')];
+    tables.forEach((table, index) => {
+      const ws = XLSX.utils.table_to_sheet(table);
+      XLSX.utils.book_append_sheet(wb, ws, `Sheet${index + 1}`);
+    });
+    XLSX.writeFile(wb, 'dashboard_data.xlsx');
+  });
+
+  // Export to PDF
+  document.getElementById('exportPDF').addEventListener('click', function () {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const tables = [document.getElementById('paymentTable'), document.getElementById('goalsTable'), document.getElementById('reportTable')];
+    tables.forEach(table => {
+      doc.autoTable({ html: table });
+      doc.addPage();
+    });
+    doc.save('dashboard_data.pdf');
+  });
+
+  // Export to SVG
+  document.getElementById('exportSVG').addEventListener('click', function () {
+    const tables = [document.getElementById('paymentTable'), document.getElementById('goalsTable'), document.getElementById('reportTable')];
+    tables.forEach((table, index) => {
+      const svg = html2svg(table);
+      const link = document.createElement('a');
+      link.href = svg;
+      link.download = `dashboard_data_${index + 1}.svg`;
+      link.click();
+    });
+  });
+
+  // Copy to Clipboard
+  document.getElementById('copyData').addEventListener('click', function () {
+    const tables = [document.getElementById('paymentTable'), document.getElementById('goalsTable'), document.getElementById('reportTable')];
+    let text = '';
+    tables.forEach(table => {
+      for (let row of table.rows) {
+        for (let cell of row.cells) {
+          text += cell.textContent + '\t';
+        }
+        text += '\n';
+      }
+    });
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Data copied to clipboard');
+    }).catch((err) => {
+      alert('Failed to copy text: ' + err);
+    });
+  });
+</script>
+
+{% endblock %}

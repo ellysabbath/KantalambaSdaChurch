@@ -1,0 +1,69 @@
+{% extends 'index.html' %}
+
+{% block title %}Kantalamba SDA Church User Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+    <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+        <p class="text-lg font-semibold mb-4">ADMIN</p>
+        
+        <!-- Table Container -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <!-- Table Header -->
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Username</th>
+                        <th class="px-4 py-2 text-left">First Name</th>
+                        <th class="px-4 py-2 text-left">Image</th> <!-- Added Image Column -->
+                        <th class="px-4 py-2 text-left">Email</th>
+                        <th class="px-4 py-2 text-left">Mobile Number</th>
+                        <th class="px-4 py-2 text-left">College</th>
+                        <th class="px-4 py-2 text-left">Year of Study</th>
+                        <th class="px-4 py-2 text-left">Home Church</th>
+                    </tr>
+                </thead>
+
+                <!-- Table Body -->
+                <tbody id="members-table-body">
+                    <!-- Data will be filled by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Fetch all members using AJAX
+    fetch('/api/all-members/')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('members-table-body');
+            data.forEach((member, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b', 'dark:border-gray-600');
+                
+                // Check if the member has a profile image and set the image URL
+                const imageUrl = member.image ? `${member.image}` : '/static/default-profile.png'; // default profile image if none
+
+                row.innerHTML = `
+                    <td class="px-4 py-2">${index + 1}</td>
+                    <td class="px-4 py-2">${member.username}</td>
+                    <td class="px-4 py-2">${member.firstname}</td>
+                    <!-- Image Column -->
+                    <td class="px-4 py-2">
+                        <img src="${imageUrl}" alt="Profile Image" class="w-12 h-12 rounded-full object-cover">
+                    </td>
+                    <td class="px-4 py-2">${member.email}</td>
+                    <td class="px-4 py-2">${member.mobNumber}</td>
+                    <td class="px-4 py-2">${member.collage}</td>
+                    <td class="px-4 py-2">${member.yearOfStudy}</td>
+                    <td class="px-4 py-2">${member.churchName}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        });
+</script>
+
+{% endblock %}

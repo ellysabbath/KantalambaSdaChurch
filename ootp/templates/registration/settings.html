@@ -1,0 +1,169 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}
+    Kantalamba SDA Church - Update Profile Image
+{% endblock %}
+
+{% block content %}
+    <div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 transition-all duration-300">
+        <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+            <h2 class="text-2xl font-semibold text-center mb-6">Update Your Profile Image</h2>
+            <form id="profileImageForm" enctype="multipart/form-data" method="POST" class="space-y-4">
+                {% csrf_token %}
+
+                <div class="flex justify-center mb-4">
+                    <!-- Display current profile image or placeholder -->
+                    <img id="profile-img" alt="Profile Image" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg" style=".profile-img {
+                        object-fit: cover; 
+                        object-position: center;
+                        max-width: 100%; 
+                        max-height: 100%; 
+                    }
+                    ">
+
+
+
+                         
+                   
+               
+                </div>
+
+
+
+                <div class="mb-4" :class="{'text-white': dark, 'text-black': !dark}">
+                    <label for="image" class="block text-sm font-medium text-gray-700" class="flex justify-center mb-4" :class="{'text-white': dark, 'text-black': !dark}">Profile Image</label>
+                    <input type="file" name="image" id="image" class="hidden" required />
+                    <button type="button" onclick="document.getElementById('image').click()" class="bg-blue-600 text-white hover:bg-blue-700 transition duration-300 px-6 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Choose Image
+                    </button>
+                </div>
+                <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300" class="flex justify-center mb-4">
+                <button type="submit" :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+
+                    Upload
+                </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const token = localStorage.getItem('access_token');
+      
+          // Elements
+          const imgProfile = document.getElementById('profile-img');
+          const imgNavbar = document.getElementById('profile-img-navbar');
+          const imgProfileExtra = document.getElementById('profile-img-profile'); // optional
+          const uploadForm = document.getElementById('profileImageForm');
+          const imageInput = document.getElementById('image');
+      
+          // ✅ Function to set image if available
+          function setProfileImage(src) {
+            if (imgProfile) imgProfile.src = src;
+            if (imgNavbar) imgNavbar.src = src;
+            if (imgProfileExtra) imgProfileExtra.src = src;
+          }
+      
+          // ✅ Fetch and display profile image
+          if (token) {
+            fetch('/api/userprofile/', {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            })
+              .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+              })
+              .then(data => {
+                const imageUrl = data.image || '/static/img/default-avatar.jpg';
+                setProfileImage(imageUrl);
+              })
+              .catch(error => {
+                console.error('Error fetching profile data:', error);
+                setProfileImage('/static/img/default-avatar.jpg');
+              });
+          } else {
+            console.log('No access token found.');
+          }
+      
+          // ✅ Image preview
+          if (imageInput) {
+            imageInput.addEventListener('change', function (event) {
+              const file = event.target.files[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                  if (imgProfile) imgProfile.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+              }
+            });
+          }
+      
+          // ✅ Form submission via fetch
+          if (uploadForm) {
+            uploadForm.addEventListener('submit', function (event) {
+              event.preventDefault();
+      
+              const formData = new FormData(uploadForm);
+      
+              fetch('/upload/', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: formData
+              })
+                .then(response => {
+                  if (!response.ok) throw new Error('Upload failed');
+                  return response.json();
+                })
+                .then(data => {
+                  if (data.image) {
+                    const updatedImage = data.image.startsWith('http') ? data.image : `/media/${data.image}`;
+                    setProfileImage(updatedImage);
+      
+                    // SweetAlert success message
+                    Swal.fire({
+                      title: 'Success!',
+                      text: 'Your profile image has been uploaded successfully.',
+                      icon: 'success',
+                      confirmButtonText: 'Okay'
+                    });
+                  } else {
+                    // SweetAlert error message
+                    Swal.fire({
+                      title: 'Error!',
+                      text: 'Something went wrong. No image returned in response.',
+                      icon: 'error',
+                      confirmButtonText: 'Try Again'
+                    });
+                  }
+                })
+                .catch(error => {
+                  console.error('Upload error:', error);
+                  // SweetAlert error message
+                  Swal.fire({
+                    title: 'Error!',
+                    text: 'There was an error uploading the image. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay'
+                  });
+                });
+            });
+          }
+        });
+      </script>
+      
+      
+   <!-- Add this to the <head> of your HTML file -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+{% endblock %}

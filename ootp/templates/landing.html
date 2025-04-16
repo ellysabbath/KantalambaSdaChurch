@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Landing Page with Background</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="{% static 'assets/img/pcm.png' %}" type="image/png" />
+    <style>
+      /* Optional: dark overlay over background image */
+      .bg-overlay {
+        background: linear-gradient(
+  rgba(0, 0, 0, 0.6),
+  rgba(0, 0, 0, 0.6)
+), url('/media/profile_images/IMG-20250407-WA0054.jpg');
+;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+    </style>
+  </head>
+  <body class="bg-overlay min-h-screen flex flex-col text-white">
+
+    <!-- Navbar -->
+    <header class="p-6">
+      <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold">TUMS</h1></a>
+        <nav>
+          <ul class="flex gap-6 text-sm font-medium">
+            <li><a href="{% url 'signup' %}" class="hover:text-blue-300">sign up</a></li>
+            <li><a href="{% url 'signin' %}" class="hover:text-blue-300">sign in</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="flex-grow flex items-center justify-center text-center px-4">
+      <div>
+        <!-- <h2 class="text-4xl md:text-5xl font-extrabold mb-4">Welcome to Our Product</h2> -->
+        <p class="text-lg md:text-xl mb-6 max-w-xl mx-auto text-gray-200">
+          join TUCASA UDOM ZONE freely by navigating at top-right link
+        </p>
+        <div class=" max-w-2xl mx-auto dark:bg-black-800 rounded-lg shadow-lg  transition-all duration-300">
+          <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300" id="posts">
+          </div>
+          </div><br><br>
+        
+        <script>
+          // Wait until DOM is ready
+          document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/posts/')
+              .then(response => response.json())
+              .then(data => {
+                const postsContainer = document.getElementById('posts');
+        
+                data.forEach(post => {
+                  // Create a container for each post
+                  const postElement = document.createElement('div');
+                 
+        
+                  // Add HTML content to it
+                  postElement.innerHTML = `
+                    <h2 :class="{'text-white': dark, 'text-black': !dark}">${post.title}</h2>
+                    <div :class="{'text-white': dark, 'text-black': !dark}">${post.text}</div>
+                  `;
+        
+                  postsContainer.appendChild(postElement);
+                });
+              })
+              .catch(error => {
+                console.error('Error fetching posts:', error);
+                document.getElementById('posts').innerHTML = '<p class="text-red-500">Failed to load posts.</p>';
+              });
+          });
+        </script>
+        <a href="{% url 'signin' %}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
+          proceed to sign in
+        </a>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center p-4 text-sm bg-black bg-opacity-40">
+      © 2025 TUCASA UDOM ZONE. Designed by Tesla Digest.
+    </footer>
+
+  </body>
+</html>

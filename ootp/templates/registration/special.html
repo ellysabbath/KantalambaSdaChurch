@@ -1,0 +1,174 @@
+{% extends 'index.html' %}
+{%  block title  %}kantalamba SDA church  user dashboard {% endblock %}
+
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300">
+  <div :class="{'text-white': dark, 'text-black': !dark}" class="transition-colors duration-300">
+      <!-- Leader Profile Section -->
+      <div class="mb-6 text-center">
+        <h2 class="text-2xl font-semibold mb-2" :class="{'text-white': dark, 'text-black': !dark}">Leader Profile</h2>
+        <div class="flex justify-center mb-4">
+            <img 
+                id="profile-img-nav" id="image"
+                alt="Profile Image"
+                class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+            >
+        </div>
+        <h5 class="text-blue-800">{{user.username}}</h5>
+        <h5 class="text-blue-800">{{user.email}}</h5>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                fetch('/api/userprofile/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const img = document.getElementById('profile-img-nav');
+                    if (data.image) {
+                        img.src = data.image;
+                    } else {
+                        img.src = '/path/to/default/profile/image.jpg';  // Fallback image
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching profile image:', error);
+                });
+            } else {
+                console.log('No token found');
+            }
+        });
+    </script>
+
+      <!-- Table of Leader's Details -->
+ <br><br>
+      <!-- *****************disabled  members*************************** -->
+
+
+
+      <div class="mt-4">
+        <!-- Table Container -->
+         <h5>disabled members</h5>
+        <div class="overflow-x-auto">
+            <table id="disabled-members-table" class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Username</th>
+                        <th class="px-4 py-2 text-left">First Name</th>
+                        <th class="px-4 py-2 text-left">Collage</th>
+                        <th class="px-4 py-2 text-left">Mobile Number</th>
+                        <th class="px-4 py-2 text-left">Email</th>
+                        <th class="px-4 py-2 text-left">Image</th>
+                        <th class="px-4 py-2 text-left">Body Ability Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+
+
+                </tbody>
+            </table>
+        </div>
+    </div><br><br>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("/api/special-needs/disabled-members/")
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector("#disabled-members-table tbody");
+                    tbody.innerHTML = ""; // Clear existing rows
+                    data.forEach((member, index) => {
+                        const row = document.createElement("tr");
+                        row.classList.add("border-b", "dark:border-gray-600");
+        
+                        row.innerHTML = `
+                            <td class="px-4 py-2">${index + 1}</td>
+                            <td class="px-4 py-2">${member.username}</td>
+                            <td class="px-4 py-2">${member.first_name}</td>
+                            <td class="px-4 py-2">${member.collage}</td>
+                            <td class="px-4 py-2">${member.mobile_number}</td>
+                            <td class="px-4 py-2">${member.email}</td>
+                            <td class="px-4 py-2">
+                                ${member.image ? `<img class="w-12 h-12 rounded-full object-cover" src="${member.image}" alt="Profile Image">` : 'No Image'}
+                            </td>
+                            <td class="px-4 py-2">${member.body_ability_status}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error("Error loading disabled members:", error));
+        });
+        </script>
+        
+    <!-- ***************************skills provided**************************** -->
+
+
+    <div class="mt-4">
+        <h5>Events done by special needs ministry</h5>
+        <!-- Table Container -->
+        <div class="overflow-x-auto">
+            <table id="special-events-table" class="min-w-full table-auto text-sm text-gray-500 dark:text-gray-300">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Date</th>
+                        <th class="px-4 py-2 text-left">Event</th>
+                        <th class="px-4 py-2 text-left">Picture</th>
+                        <th class="px-4 py-2 text-left">Cost</th>
+                    </tr>
+                </thead>
+                <tbody></tbody> <!-- ✅ This was missing -->
+            </table>
+        </div>
+      </div>
+      
+      <script>
+      document.addEventListener("DOMContentLoaded", () => {
+          fetch("/api/special-needs/events/")
+              .then(res => res.json())
+              .then(data => {
+                  const tbody = document.querySelector("#special-events-table tbody");
+                  tbody.innerHTML = "";
+      
+                  data.forEach((event, index) => {
+                      const tr = document.createElement("tr");
+                      tr.classList.add("border-b", "dark:border-gray-600");
+      
+                      const imageTag = event.picture 
+                          ? `<img class="w-12 h-12 rounded-full object-cover" src="${event.picture}" alt="Event Image">`
+                          : 'No Image';
+      
+                      tr.innerHTML = `
+                          <td class="px-4 py-2">${index + 1}</td>
+                          <td class="px-4 py-2">${event.date}</td>
+                          <td class="px-4 py-2">${event.eventName}</td>
+                          <td class="px-4 py-2">${imageTag}</td>
+                          <td class="px-4 py-2">$${parseFloat(event.cost).toFixed(2)}</td>
+                      `;
+      
+                      tbody.appendChild(tr);
+                  });
+              })
+              .catch(error => console.error("Failed to fetch events:", error));
+      });
+      </script>
+      
+    
+
+  </div>
+</div>
+
+
+
+
+{% endblock %}
