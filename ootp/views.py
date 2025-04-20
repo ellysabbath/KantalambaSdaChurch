@@ -105,6 +105,7 @@ from .models import (
 #         raise e
 
 # Function to send OTP to email
+
 def send_otp_to_email(email, otp_code):
     subject = "Email Verification"
     message = f"Hi there,\nHere is your OTP: {otp_code}\nIt expires in 5 minutes."
@@ -113,6 +114,7 @@ def send_otp_to_email(email, otp_code):
     send_mail(subject, message, sender, receiver, fail_silently=False)
 
 # Create your views here.
+@login_required
 def index(request):
     return render(request, "index.html")
 
@@ -357,84 +359,86 @@ def message_status_callback(request):
     # For now, we'll just return a response to acknowledge receipt
     return JsonResponse({'status': 'Received', 'MessageSid': message_sid, 'MessageStatus': message_status})
 
+@login_required
 def Dashboard(request):
     return render(request, "registration/dashboard.html")
-
+@login_required
 def mhazini_view(request):
     return render(request, "registration/Mhazini.html")
 
 # *********************************************aptec udom zone****************************
-
+@login_required
 def aptecAdmin(request):
     return render(request, "registration/aptecAdmin.html")
-
+@login_required
 def aptecAllMembers(request):
     return render(request, "registration/aptecAllMembers.html")
-
+@login_required
 def aptecCive(request):
     return render(request, "registration/aptecCive.html")
-
+@login_required
 def aptecCoed(request):
     return render(request, "registration/aptecCoed.html")
 
 def landing(request):
     return render(request, "landing.html")
-
+@login_required
 def aptecSocial(request):
     return render(request, "registration/aptecSocial.html")
-
+@login_required
 def aptecHumanities(request):
     return render(request, "registration/aptecHumanities.html")
-
+@login_required
 def aptecMedicalMissionary(request):
     return render(request, "registration/aptecMedicalMissionary.html")
-
+@login_required
 def aptecSpiritual(request):
     return render(request, "registration/aptecSpiritual.html")
-
+@login_required
 def aptecTiba(request):
     return render(request, "registration/aptecTiba.html")
-
+@login_required
 def aptecTreasure(request):
     return render(request, "registration/aptecTreasure.html")
-
+@login_required
 def auditor(request):
     return render(request, "registration/auditor.html")
-
+@login_required
 def chair(request):
     return render(request, "registration/chair.html")
-
+@login_required
 def chaplain(request):
     return render(request, "registration/chaplain.html")
 
-
+@login_required
 def communication(request):
     return render(request, "registration/communication.html")
-
+@login_required
 def medicalMissionary(request):
     return render(request, "registration/medicalMissionary.html")
-
+@login_required
 def pastor(request):
     return render(request, "registration/pastor.html")
-
+@login_required
 def udomZoneAllMembers(request):
     return render(request, "registration/udomZoneAllMembers.html")
-
+@login_required
 def ventures(request):
     return render(request, "registration/ventures.html")
-
+@login_required
 def ZoneHistorical(request):
     return render(request, "registration/ZoneHistory.html")
-
+@login_required
 def education(request):
     return render(request, "registration/education.html")
 
-
+@login_required
 def special(request):
     return render(request, "registration/special.html")
-
+@login_required
 def profile(request):
     return render(request, "registration/profile.html")
+@login_required
 def appsettings(request):
     return render(request, "registration/settings.html")
 
@@ -451,7 +455,7 @@ def createProfile(request):
 #         context = super().get_context_data(**kwargs)
 #         context['user'] = self.request.user  # Add user context here
 #         return context
-
+@login_required
 def updateProfile(request):
     return render(request, "registration/update-profile.html")
 
